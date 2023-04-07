@@ -87,10 +87,10 @@ public class Main {
             Log.printLine("Enter number of cloudlet");
             int numberOfCloudlet = scanner.nextInt();
 
-            for (int i = 1; i <= 5 ; i++) {
+            for (int i = 1; i <= 1 ; i++) {
                 CloudSim.init(numUsers, calendar, true);
 
-                DatacenterBroker broker = null;
+                Java broker = null;
                 try {
                     switch (i) {
                         case 1:
@@ -131,6 +131,7 @@ public class Main {
                 Log.printLine("Starts the simulation");
 
                 CloudSim.startSimulation();
+                broker.compile("name");
 
                 Log.printLine();
                 Log.printLine("Results when simulation is over");
@@ -220,36 +221,6 @@ public class Main {
                 )
         ); // Second machine
 
-
-        //To create a host with a space-shared allocation policy for PEs to VMs:
-        //hostList.add(
-        //		new Host(
-        //			hostId,
-        //			new CpuProvisionerSimple(peList1),
-        //			new RamProvisionerSimple(ram),
-        //			new BwProvisionerSimple(bw),
-        //			storage,
-        //			new VmSchedulerSpaceShared(peList1)
-        //		)
-        //	);
-
-        //To create a host with an opportunistic space-shared allocation policy for PEs to VMs:
-        //hostList.add(
-        //		new Host(
-        //			hostId,
-        //			new CpuProvisionerSimple(peList1),
-        //			new RamProvisionerSimple(ram),
-        //			new BwProvisionerSimple(bw),
-        //			storage,
-        //			new VmSchedulerOpportunisticSpaceShared(peList1)
-        //		)
-        //	);
-
-
-        // 5. Create a DatacenterCharacteristics String that stores the
-        //    properties of a data center: architecture, OS, list of
-        //    Machines, allocation policy: time- or space-shared, time zone
-        //    and its price (G$/Pe time unit).
         String arch = "x86";      // system architecture
         String os = "Linux";          // operating system
         String vmm = "Xen";

@@ -1,33 +1,27 @@
 package main;
 
 import java.io.BufferedReader;
+import java.io.*;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.List;
 
-import org.cloudbus.cloudsim.allocationpolicies.VmAllocationPolicySimple;
-import org.cloudbus.cloudsim.core.CloudSim;
-import org.cloudbus.cloudsim.datacenters.Datacenter;
-import org.cloudbus.cloudsim.datacenters.DatacenterCharacteristics;
-import org.cloudbus.cloudsim.datacenters.DatacenterSimple;
-import org.cloudbus.cloudsim.hosts.Host;
-import org.cloudbus.cloudsim.hosts.HostSimple;
-import org.cloudbus.cloudsim.network.datacenter.AggregateSwitch;
-import org.cloudbus.cloudsim.network.datacenter.NetworkConstants;
-import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter;
-import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenterBroker;
-import org.cloudbus.cloudsim.network.datacenter.NetworkLink;
-import org.cloudbus.cloudsim.network.datacenter.NetworkOperatingSystem;
-import org.cloudbus.cloudsim.network.datacenter.RootSwitch;
-import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
-import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
-import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
-import org.cloudbus.cloudsim.vms.Vm;
-import org.cloudbus.cloudsim.vms.VmSimple;
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticCollector;
+import javax.tools.JavaCompiler;
+import javax.tools.JavaCompiler.CompilationTask;
+import javax.tools.JavaFileObject;
+import javax.tools.ToolProvider;
+
+import org.cloudbus.cloudsim.CloudletScheduler;
+import org.cloudbus.cloudsim.Vm;
+import compilers.InMemoryJavaFileObject;
+
 
 public class UserVM extends Vm {
     public UserVM(int id, int userId, double mips, int pesNumber, int ram, long bw, long size, String vmm, CloudletScheduler cloudletScheduler) {
@@ -44,7 +38,7 @@ public class UserVM extends Vm {
             DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
             StringWriter writer = new StringWriter();
             PrintWriter out = new PrintWriter(writer);
-            JavaFileObject file = new JavaSourceFromString("UserClass", code);
+            JavaFileObject file = new InMemoryJavaFileObject("UserClass", code);
             Iterable<? extends JavaFileObject> compilationUnits = Arrays.asList(file);
             CompilationTask task = compiler.getTask(out, null, diagnostics, null, null, compilationUnits);
             boolean success = task.call();
