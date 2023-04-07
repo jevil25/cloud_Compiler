@@ -56,13 +56,9 @@ public class Main {
     public static void main(String[] args) {
         Log.printLine();
         Log.printLine("===================================== Load Balancer ==================================");
-        Log.printLine("Title:        LoadBalancer" +
-                "\nDescription:  A simulation to identify different approaches in Load Balancing of Cloud Computing" +
-                "\nAuthors:      Ajinkya Dandvate" +
-                "\n              Ajinkya Taranekar" +
-                "\n              Chirayu Mehta" +
-                "\n              Malay Saxena" +
-                "\n              Murtaza Ali");
+        Log.printLine("Title:        Serverless Compilation" +
+                "\nAuthors:      Aaron Jevil Nazareth" +
+                "\n              Aaron Francis Dsouza" );
         try {
             Calendar calendar = Calendar.getInstance();
 
@@ -131,7 +127,17 @@ public class Main {
                 Log.printLine("Starts the simulation");
 
                 CloudSim.startSimulation();
-                broker.compile("name");
+                Object result = broker.compile("public class Main {"
+                		+ "  public static void main(String args[]) {"
+                		+ "    for(int i=0;i<1000000;i++){"
+                		+ "System.out.println(i);"
+                		+ "};"
+                		+ "}"
+                		+ "}");
+                
+                if (result != null) {
+                    System.out.println(result.toString()+"1");
+                }
 
                 Log.printLine();
                 Log.printLine("Results when simulation is over");

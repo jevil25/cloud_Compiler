@@ -2,11 +2,15 @@ package compilers;
 
 import org.cloudbus.cloudsim.DatacenterBroker;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
-import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
@@ -17,36 +21,38 @@ public class Java  extends DatacenterBroker{
 		super(name);
 	}
 		
-	public String compile(String code) {
-	    // Set up in-memory file manager
-	    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-	    StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-	    JavaFileObject fileObject = new InMemoryJavaFileObject("Main", code);
-	    Iterable<? extends JavaFileObject> compilationUnits = Arrays.asList(fileObject);
-
-	    // Set up compiler task and output stream
-	    StringWriter writer = new StringWriter();
-	    DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-	    CompilationTask task = compiler.getTask(writer, fileManager, diagnostics, null, null, compilationUnits);
-
-	    // Execute compilation and capture output
-	    boolean success = task.call();
-	    String output = writer.toString();
-
-	    // Clean up file manager and writer
-	    try {
-	        fileManager.close();
-	        writer.close();
-	    } catch (Exception e) {
-	        // Handle exception
-	    }
-
-	    // Return compilation output
-	    if (success) {
-	        return "Compilation succeeded.\n" + output;
-	    } else {
-	        return "Compilation failed.\n" + output;
-	    }
+	public Object compile(String code) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, MalformedURLException {
+		 // Use the Java Compiler API to compile the input code into bytecode
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+        StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
+        JavaFileObject sourceFile = new DynamicJavaSourceCodeObject("Main", code);
+        Iterable<? extends JavaFileObject> compilationUnits = Arrays.asList(sourceFile);
+        compiler.getTask(null, fileManager, diagnostics, null, null, compilationUnits).call();
+        try {
+			fileManager.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+        // Use reflection to load and execute the compiled bytecode
+        URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{new File("").toURI().toURL()});
+        Class<?> loadedClass = null;
+		try {
+			loadedClass = classLoader.loadClass("Main");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		Object result = null;
+		try {
+			Method mainMethod = loadedClass.getDeclaredMethod("main", String[].class);
+			result = mainMethod.invoke(null, new Object[]{new String[]{}});
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
-    
 }
