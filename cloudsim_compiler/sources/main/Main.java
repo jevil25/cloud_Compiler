@@ -127,16 +127,14 @@ public class Main {
                 Log.printLine("Starts the simulation");
 
                 CloudSim.startSimulation();
-                Object result = broker.compile("public class Main {"
+                String result = broker.compile("public class Main {"
                 		+ "  public static void main(String args[]) {"
-                		+ "    for(int i=0;i<1000000;i++){"
-                		+ "System.out.println(i);"
-                		+ "};"
+                		+ "   System.out.println(\"Hello\");"
                 		+ "}"
                 		+ "}");
                 
                 if (result != null) {
-                    System.out.println(result.toString()+"1");
+                    System.out.println(result.toString());
                 }
 
                 Log.printLine();

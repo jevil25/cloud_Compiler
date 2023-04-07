@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.util.Arrays;
 
 import javax.tools.DiagnosticCollector;
@@ -21,7 +22,7 @@ public class Java  extends DatacenterBroker{
 		super(name);
 	}
 		
-	public Object compile(String code) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, MalformedURLException {
+	public String compile(String code) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, MalformedURLException {
 		 // Use the Java Compiler API to compile the input code into bytecode
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
@@ -36,6 +37,17 @@ public class Java  extends DatacenterBroker{
 			e.printStackTrace();
 		}
         
+        // Redirect the output to a temporary file
+        File tempFile = null;
+        PrintStream originalOut = System.out;
+        try {
+            tempFile = File.createTempFile("output", ".txt");
+            PrintStream fileStream = new PrintStream(new FileOutputStream(tempFile));
+            System.setOut(fileStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
         // Use reflection to load and execute the compiled bytecode
         URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{new File("").toURI().toURL()});
         Class<?> loadedClass = null;
@@ -44,15 +56,29 @@ public class Java  extends DatacenterBroker{
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		Object result = null;
+		String output = "";
 		try {
 			Method mainMethod = loadedClass.getDeclaredMethod("main", String[].class);
-			result = mainMethod.invoke(null, new Object[]{new String[]{}});
+			mainMethod.invoke(null, new Object[]{new String[]{}});
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		}
-		return result;
+		// Read the output from the file
+	    try {
+	        output = new String(Files.readAllBytes(tempFile.toPath()));
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+
+	    // Delete the temporary file
+	    if (tempFile != null) {
+	        tempFile.delete();
+	    }
+
+	    // Restore the original output stream
+	    System.setOut(originalOut);
+		return output;
 	}
 }
