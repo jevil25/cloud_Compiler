@@ -1,11 +1,13 @@
 package main;
 
 import org.cloudbus.cloudsim.*;
+
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
 import compilers.Java;
+import compilers.CppCompiler;
 
 import java.util.*;
 
@@ -66,7 +68,7 @@ public class Main {
 
             Log.printLine();
             Log.printLine("First step: Initialize the CloudSim package.");
-            Log.printLine("Enter number of grid users:");
+            Log.printLine("Enter number of users:");
             int numUsers = scanner.nextInt();
 
             Log.printLine();
@@ -83,59 +85,72 @@ public class Main {
             Log.printLine("Enter number of cloudlet");
             int numberOfCloudlet = scanner.nextInt();
 
-            for (int i = 1; i <= 1 ; i++) {
-                CloudSim.init(numUsers, calendar, true);
+            CloudSim.init(numUsers, calendar, true);
 
-                Java broker = null;
-                try {
-                    switch (i) {
-                        case 1:
-                            broker = new Java("JavaBroker");
-                            break;
-                        default:
-                            Log.printLine("Please, select from [1-5] only:");
-                            break;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
 
                 for (int j = 0; j < numberOfDatacenters; j++) {
                     createDatacenter("Datacenter_" + j);
                 }
-
+                Java broker = new Java("JavaBroker");
+                CppCompiler cbroker = new CppCompiler("CppBroker");
                 assert broker != null;
                 int brokerId = broker.getId();
                 String brokerName = broker.getName();
+                
+                List<Vm> vmList = createVM(brokerId, numberOfVm);
+                List<Cloudlet> cloudletList = createCloudlet(brokerId, numberOfCloudlet);
+                
+                broker.submitVmList(vmList);
+                broker.submitCloudletList(cloudletList);
 
                 Log.printLine("Broker: " + brokerName);
                 Log.printLine("Create VMs");
 
-                List<Vm> vmList = createVM(brokerId, numberOfVm);
+                
 
                 Log.printLine();
                 Log.printLine("Create Cloudlets");
 
-                List<Cloudlet> cloudletList = createCloudlet(brokerId, numberOfCloudlet);
-
                 Log.printLine("Sending them to broker...");
-
-                broker.submitVmList(vmList);
-                broker.submitCloudletList(cloudletList);
 
                 Log.printLine();
                 Log.printLine("Starts the simulation");
 
                 CloudSim.startSimulation();
-                String result = broker.compile("public class Main {"
-                		+ "  public static void main(String args[]) {"
-                		+ "   System.out.println(\"Hello\");"
-                		+ "}"
-                		+ "}");
-                
-                if (result != null) {
-                    System.out.println(result.toString());
-                }
+                for (int i = 1; i <= numUsers ; i++) {
+                    
+                    Log.printLine("Enter number 1)Java 2)C++ for user "+(i+1));
+                    int com = scanner.nextInt();   
+
+                    try {
+                        switch (com) {
+                            case 1:
+                                String result = broker.compile("public class Main {"
+                                		+ "  public static void main(String args[]) {"
+                                		+"int e=10;"
+                                		+ "   System.out.println(e);"
+                                		+ "}"
+                                		+ "}"); 
+                                Log.printLine(result);
+                                break;
+                            case 2:
+                            	String res = cbroker.compile("#include <iostream>\r\n"
+                            			+ "\r\n"
+                            			+ "int main() {\r\n"
+                            			+ "    int n = 11;\r\n"
+                            			+ "    std::cout << n << std::endl;\r\n"
+                            			+ "    return 0;\r\n"
+                            			+ "}");
+                            	Log.printLine(res);
+                            	break;
+                            default:
+                                Log.printLine("Please, select from [1-"+(numUsers-1)+"] only:");
+                                break;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    
 
                 Log.printLine();
                 Log.printLine("Results when simulation is over");
