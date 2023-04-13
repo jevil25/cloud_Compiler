@@ -9,6 +9,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Scanner;
 
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
@@ -16,14 +17,15 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
-public class Java  extends DatacenterBroker{
+public class Java extends DatacenterBroker {
 
-	public Java(String name) throws Exception {
-		super(name);
-	}
-		
-	public String compile(String code) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, MalformedURLException {
-		 // Use the Java Compiler API to compile the input code into bytecode
+    public Java(String name) throws Exception {
+        super(name);
+    }
+
+    public void compile(String code) throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, MalformedURLException {
+        // Use the Java Compiler API to compile the input code into bytecode
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
@@ -31,54 +33,28 @@ public class Java  extends DatacenterBroker{
         Iterable<? extends JavaFileObject> compilationUnits = Arrays.asList(sourceFile);
         compiler.getTask(null, fileManager, diagnostics, null, null, compilationUnits).call();
         try {
-			fileManager.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        
-        // Redirect the output to a temporary file
-        File tempFile = null;
-        PrintStream originalOut = System.out;
-        try {
-            tempFile = File.createTempFile("output", ".txt");
-            PrintStream fileStream = new PrintStream(new FileOutputStream(tempFile));
-            System.setOut(fileStream);
+            fileManager.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         // Use reflection to load and execute the compiled bytecode
-        URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{new File("").toURI().toURL()});
+        URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] { new File("").toURI().toURL() });
         Class<?> loadedClass = null;
-		try {
-			loadedClass = classLoader.loadClass("Main");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		String output = "";
-		try {
-			Method mainMethod = loadedClass.getDeclaredMethod("main", String[].class);
-			mainMethod.invoke(null, new Object[]{new String[]{}});
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		}
-		// Read the output from the file
-	    try {
-	        output = new String(Files.readAllBytes(tempFile.toPath()));
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    }
-
-	    // Delete the temporary file
-	    if (tempFile != null) {
-	        tempFile.delete();
-	    }
-
-	    // Restore the original output stream
-	    System.setOut(originalOut);
-		return output;
-	}
+        try {
+            loadedClass = classLoader.loadClass("Main");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        try {
+            Method mainMethod = loadedClass.getDeclaredMethod("main", String[].class);
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Output:");
+            mainMethod.invoke(null, new Object[] { new String[] {  } });
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+    }
 }

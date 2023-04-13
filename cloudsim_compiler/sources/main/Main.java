@@ -70,7 +70,7 @@ public class Main {
             Log.printLine("First step: Initialize the CloudSim package.");
             Log.printLine("Enter number of users:");
             int numUsers = scanner.nextInt();
-
+            for (int i = 1; i <= numUsers ; i++) { 
             Log.printLine();
             Log.printLine("Second step: Create Datacenters are the resource providers in CloudSim. We need at list one of them to run a CloudSim simulation.");
             Log.printLine("Enter number of datacenters:");
@@ -117,7 +117,6 @@ public class Main {
                 Log.printLine("Starts the simulation");
 
                 CloudSim.startSimulation();
-                for (int i = 1; i <= numUsers ; i++) {
                     
                     Log.printLine("Enter number 1)Java 2)C++ for user "+(i+1));
                     int com = scanner.nextInt();   
@@ -125,13 +124,18 @@ public class Main {
                     try {
                         switch (com) {
                             case 1:
-                                String result = broker.compile("public class Main {"
-                                		+ "  public static void main(String args[]) {"
-                                		+"int e=10;"
-                                		+ "   System.out.println(e);"
-                                		+ "}"
+                               broker.compile("import java.util.Scanner;\r\n"
+                                		+ "\r\n"
+                                		+ "public class Main {\r\n"
+                                		+ "    public static void main(String[] args) {\r\n"
+                                		+ "        Scanner input = new Scanner(System.in);\r\n"
+                                		+ "        System.out.print(\"Enter an integer: \");\r\n"
+                                		+ "        int num = input.nextInt();\r\n"
+                                		+ "        int result = num * 2;\r\n"
+                                		+ "        System.out.println(\"Result: \" + result);\r\n"
+                                		+ "    }\r\n"
                                 		+ "}"); 
-                                Log.printLine(result);
+                                
                                 break;
                             case 2:
                             	String res = cbroker.compile("#include <iostream>\r\n"
@@ -164,7 +168,7 @@ public class Main {
 
                 Log.printLine();
                 Log.printLine("Simulation Complete");
-            }
+            
 
             String leftAlignFormat = "| %-39s | %-15s | %-15s |%n";
 
@@ -175,6 +179,7 @@ public class Main {
                 System.out.format(leftAlignFormat, result.get("broker"), result.get("total_cpu_time"), result.get("average_cpu_time"));
             }
             System.out.format("+-----------------------------------------+-----------------+-----------------+%n");
+            }
         }
         catch (Exception e)
         {
