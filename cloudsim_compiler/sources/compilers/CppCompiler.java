@@ -31,9 +31,37 @@ public class CppCompiler extends DatacenterBroker {
 	    // Wait for the process to complete
 	    int exitCode = p.waitFor();
 
-	    //TODO:fix output stream
 	    // Read the output and error streams from the process
 	    String output = "";
+	    try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+	        String line;
+	        while ((line = reader.readLine()) != null) {
+	            output += line + "\n";
+	            System.out.println(line);
+	        }
+	    } catch (IOException e) {
+	        // error handling code
+	        System.out.println(e);
+	    }
+	    try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(p.getErrorStream()))) {
+	        String errorLine;
+	        while ((errorLine = errorReader.readLine()) != null) {
+	            System.err.println(errorLine);
+	        }
+	    } catch (IOException e) {
+	        // error handling code
+	        System.out.println(e);
+	    }
+
+	    if (exitCode != 0) {
+	        System.err.println("Compilation failed with exit code " + exitCode);
+	        return output;
+	    }
+
+	    // Run the compiled executable and print its output
+	    pb = new ProcessBuilder(executableFile);
+	    pb.redirectErrorStream(true);
+	    p = pb.start();
 	    try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
 	        String line;
 	        while ((line = reader.readLine()) != null) {
@@ -58,13 +86,10 @@ public class CppCompiler extends DatacenterBroker {
 	    new File(sourceFile).delete();
 	    new File(executableFile).delete();
 
-	    if (exitCode != 0) {
-	        System.err.println("Compilation failed with exit code " + exitCode);
-	    } else {
-	        System.out.println("Compilation successful!");
-	    }
+	    System.out.println("Compilation and execution successful!");
 
 	    return output;
 	}
+
 
 }

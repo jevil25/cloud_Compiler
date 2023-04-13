@@ -1,15 +1,9 @@
 package main;
 
-import java.io.BufferedReader;
 import java.io.*;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;

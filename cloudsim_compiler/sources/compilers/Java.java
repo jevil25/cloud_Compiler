@@ -7,7 +7,6 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -51,6 +50,7 @@ public class Java extends DatacenterBroker {
             Scanner scanner = new Scanner(System.in);
             System.out.println("Output:");
             mainMethod.invoke(null, new Object[] { new String[] {  } });
+            scanner.close();
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (SecurityException e) {

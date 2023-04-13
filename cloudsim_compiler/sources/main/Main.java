@@ -138,14 +138,13 @@ public class Main {
                                 
                                 break;
                             case 2:
-                            	String res = cbroker.compile("#include <iostream>\r\n"
-                            			+ "\r\n"
+                            	cbroker.compile("#include <iostream>\r\n"
+                            			+ "using namespace std;\r\n"
                             			+ "int main() {\r\n"
                             			+ "    int n = 11;\r\n"
-                            			+ "    std::cout << n << std::endl;\r\n"
+                            			+ "    cout << n << endl;\r\n"
                             			+ "    return 0;\r\n"
                             			+ "}");
-                            	Log.printLine(res);
                             	break;
                             default:
                                 Log.printLine("Please, select from [1-"+(numUsers-1)+"] only:");
@@ -160,7 +159,6 @@ public class Main {
                 Log.printLine("Results when simulation is over");
 
                 List<Cloudlet> cloudletReceivedList = broker.getCloudletReceivedList();
-                List<Vm> vmsCreatedList = broker.getVmsCreatedList();
 
                 CloudSim.stopSimulation();
 
@@ -180,6 +178,7 @@ public class Main {
             }
             System.out.format("+-----------------------------------------+-----------------+-----------------+%n");
             }
+            scanner.close();
         }
         catch (Exception e)
         {
